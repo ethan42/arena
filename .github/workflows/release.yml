@@ -20,11 +20,14 @@ jobs:
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+            - name: Install emscripten
+              run: sudo apt install -fy emscripten
+
             - name: Build student repos
               run: |
                 for repo in hw*-submissions/*; do
                     cd $repo
-                    make
+                    make engine.wasm
                     cd -
                 done
 

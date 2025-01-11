@@ -1,0 +1,35 @@
+
+## Github action for ssh'ing into the server and pulling down all repos
+
+name: Refresh
+
+on:
+    workflow_dispatch:
+
+
+jobs:
+    refresh:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Setup ssh key
+          run: |
+            # Create SSH directory if not exists
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+
+            # Add the SSH private key from secret to a file
+            echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+
+            # Disable host key checking (optional, for first-time connections)
+            echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+
+        - name: Refresh
+          run: |
+            ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'echo hi > hi.txt'
+          env:
+            GH_TOKEN: ${{ secrets.GH_TOKEN }}
+

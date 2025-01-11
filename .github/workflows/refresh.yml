@@ -29,5 +29,5 @@ jobs:
           run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'GH_TOKEN=${{ secrets.GH_TOKEN }} gh classroom clone student-repos -a ${{ secrets.HW_ID }} --verbose'
 
         - name: Pull student repos
-          run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'export GH_TOKEN=${{ secrets.GH_TOKEN }}; for repo in hw-submissions/*/*; do cd $repo; gh repo sync --force; cd -; done'
+          run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'export GH_TOKEN=${{ secrets.GH_TOKEN }}; for repo in hw*-submissions/*/*; do cd $repo; gh repo sync --force; cd -; done'
 

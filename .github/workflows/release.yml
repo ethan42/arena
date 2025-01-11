@@ -27,7 +27,7 @@ jobs:
               run: |
                 for repo in hw*-submissions/*; do
                     cd $repo
-                    docker run --rm  -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk make engine.wasm
+                    docker run --rm  -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk make engine.wasm || true
                     du -sh engine.wasm || true
                     cd -
                 done

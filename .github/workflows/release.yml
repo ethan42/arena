@@ -13,6 +13,12 @@ jobs:
             contents: write
 
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Fetch tags
+              run: git fetch --tags
+
             - name: Install github cli && github classroom
               run: |
                 sudo apt update --fix-missing && sudo apt install gh -fy && gh extension install github/gh-classroom
@@ -40,12 +46,6 @@ jobs:
               run: sudo apt install -fy hub
 
             ## Cut new release and upload wasm files
-            - name: Checkout repository
-              uses: actions/checkout@v3
-
-            - name: Fetch tags
-              run: git fetch --tags
-
             - name: Get latest tag
               id: get_tag
               run: |

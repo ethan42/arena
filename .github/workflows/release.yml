@@ -8,10 +8,14 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+
+        permissions:
+            contents: write
+
         steps:
             - name: Install github cli && github classroom
               run: |
-                sudo apt update && sudo apt install gh -fy && gh extension install github/gh-classroom
+                sudo apt update --fix-missing && sudo apt install gh -fy && gh extension install github/gh-classroom
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -20,15 +24,64 @@ jobs:
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-            - name: Install emscripten
-              run: sudo apt install -fy emscripten
-
             - name: Build student repos
               run: |
+                mkdir -p engines
                 for repo in hw*-submissions/*; do
                     cd $repo
                     docker run --rm  -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk make engine.wasm || true
                     du -sh engine.wasm || true
+                    mv engine.wasm ../../engines/$(basename $repo | cut -f 2- -d -).wasm || true
                     cd -
                 done
+                tar cvfz engines.tar.gz engines
 
+            - name: Install Hub CLI
+              run: sudo apt install -fy hub
+
+            ## Cut new release and upload wasm files
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Fetch tags
+              run: git fetch --tags
+
+            - name: Get latest tag
+              id: get_tag
+              run: |
+                latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` || true)
+                echo "Latest tag: $latest_tag"
+                echo "::set-output name=tag::$latest_tag"
+
+            - name: Calculate new version
+              id: new_version
+              run: |
+                if [ -z "${{ steps.get_tag.outputs.tag }}" ]; then
+                  # No tags found, set initial version
+                  new_version="0.1.0"
+                else
+                  # Parse the latest version
+                  latest_version=${{ steps.get_tag.outputs.tag }}
+                  IFS='.' read -r -a version_parts <<< "$latest_version"
+                  major=${version_parts[0]}
+                  minor=${version_parts[1]}
+                  patch=${version_parts[2]}
+                  # Increment the patch version
+                  patch=$((patch+1))
+                  new_version="$major.$minor.$patch"
+                fi
+                echo "New version: $new_version"
+                echo "::set-output name=version::$new_version"
+
+            - name: Create new tag
+              run: |
+                git tag ${{ steps.new_version.outputs.version }}
+                git push origin ${{ steps.new_version.outputs.version }}
+
+            - name: Publish engines tarball
+              run: |
+                set -x
+                tag_name="${{ steps.new_version.outputs.version }}"
+                hub release create -a engines.tar.gz -m "$tag_name" "$tag_name"
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

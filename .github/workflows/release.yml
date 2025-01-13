@@ -35,6 +35,7 @@ jobs:
                 mkdir -p engines
                 for repo in hw*-submissions/*; do
                     cd $repo
+                    echo $(basename $repo | cut -f 2- -d -)
                     docker run --rm  -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk make engine.wasm || true
                     du -sh engine.wasm || true
                     mv engine.wasm ../../engines/$(basename $repo | cut -f 2- -d -).wasm || true

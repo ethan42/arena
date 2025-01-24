@@ -44,6 +44,7 @@ jobs:
                     mv engine.wasm ../../engines/$(basename $repo | cut -f 2- -d -).wasm || true
                     cd -
                 done
+                python3 -c 'import os, json; print(json.dumps({"engines": os.listdir("engines")}))' > engines/engines.json
                 tar cvfz engines.tar.gz engines
 
             - name: Install Hub CLI

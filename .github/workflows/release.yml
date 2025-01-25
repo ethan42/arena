@@ -39,7 +39,7 @@ jobs:
                 for repo in hw*-submissions/*; do
                     cd $repo
                     echo $(basename $repo | cut -f 2- -d -)
-                    docker run --rm  -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk make engine.wasm || true
+                    docker run --rm  -v $(pwd):/src -e WEB_TARGET=engine.wasm -u $(id -u):$(id -g) emscripten/emsdk make engine.wasm || true
                     du -sh engine.wasm || true
                     mv engine.wasm ../../engines/$(basename $repo | cut -f 2- -d -).wasm || true
                     cd -

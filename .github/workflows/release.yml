@@ -6,7 +6,7 @@ name: Release
 on:
   # setup cron
     schedule:
-      - cron: '0 1 * * *'
+      - cron: '0 */5 * * *'
     workflow_dispatch:
 
 jobs:

@@ -40,9 +40,9 @@ jobs:
                 for repo in hw*-submissions/*; do
                     cd $repo
                     echo $(basename $repo | cut -f 2- -d -)
-                    docker run --rm  -v $(pwd):/src -e WEB_TARGET=engine.wasm -u $(id -u):$(id -g) emscripten/emsdk make engine.wasm || true
-                    du -sh engine.wasm || true
-                    mv engine.wasm ../../engines/$(basename $repo | cut -f 2- -d -).wasm || true
+                    docker run --rm  -v $(pwd):/src -e TARGET=goteam -u $(id -u):$(id -g) gcc make goteam || true
+                    du -sh goteam || true
+                    mv goteam ../../engines/$(basename $repo | cut -f 2- -d -) || true
                     cd -
                 done
                 python3 -c 'import os, json; print(json.dumps({"engines": os.listdir("engines")}))' > engines.json

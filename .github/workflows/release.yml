@@ -42,7 +42,7 @@ jobs:
                     echo $(basename $repo | cut -f 2- -d -)
                     docker run --rm -w /app -v $(pwd):/app -e TARGET=goteam -u $(id -u):$(id -g) gcc make || true
                     du -sh goteam || true
-                    if ! ldd goteam; then rm -f goteam; fi  # static binaries are not allowed
+                    if ldd goteam; then rm -f goteam; fi  # static binaries are not allowed
                     strip goteam || true
                     mv goteam ../../engines/$(basename $repo | cut -f 2- -d -) || true
                     cd -

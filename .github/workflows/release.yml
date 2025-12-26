@@ -40,7 +40,7 @@ jobs:
                 for repo in hw*-submissions/*; do
                     cd $repo
                     echo $(basename $repo | cut -f 2- -d -)
-                    docker run --rm  -v $(pwd):/src -e TARGET=goteam -u $(id -u):$(id -g) gcc make goteam || true
+                    docker run --rm  -v $(pwd):/src -e TARGET=goteam -u $(id -u):$(id -g) gcc make || true
                     du -sh goteam || true
                     ldd goteam || rm -f goteam  # dynamic binaries are not allowed
                     strip goteam || true
